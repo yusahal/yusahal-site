@@ -1,0 +1,44 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import { getCollection } from "astro:content";
+
+const allPosts = await getCollection("blog", ({ data }) => !data.draft);
+const posts = allPosts.sort(
+  (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf()
+);
+---
+
+<BaseLayout title="Blog" description="遊佐ハルのブログ・日記">
+  <h1 class="text-2xl font-bold mb-8">Blog</h1>
+
+  {posts.length > 0 ? (
+    <ul class="space-y-6">
+      {posts.map((post) => (
+        <li>
+          <a href={`/blog/${post.id}/`} class="group block">
+            <time class="text-sm text-gray-400" datetime={post.data.pubDate.toISOString()}>
+              {post.data.pubDate.toLocaleDateString("ja-JP")}
+            </time>
+            <h2 class="text-lg font-semibold group-hover:text-gray-600 transition-colors">
+              {post.data.title}
+            </h2>
+            {post.data.description && (
+              <p class="text-sm text-gray-500 mt-1">{post.data.description}</p>
+            )}
+            {post.data.tags.length > 0 && (
+              <div class="mt-1.5 flex gap-1.5 flex-wrap">
+                {post.data.tags.map((tag: string) => (
+                  <span class="text-xs bg-gray-100 text-gray-500 px-1.5 py-0.5 rounded">
+                    {tag}
+                  </span>
+                ))}
+              </div>
+            )}
+          </a>
+        </li>
+      ))}
+    </ul>
+  ) : (
+    <p class="text-gray-400">まだ記事はありません。</p>
+  )}
+</BaseLayout>

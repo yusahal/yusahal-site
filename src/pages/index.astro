@@ -1,17 +1,47 @@
 ---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import { getCollection } from "astro:content";
 
+const allPosts = await getCollection("blog", ({ data }) => !data.draft);
+const recentPosts = allPosts
+  .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf())
+  .slice(0, 5);
 ---
 
-<html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<link rel="icon" href="/favicon.ico" />
-		<meta name="viewport" content="width=device-width" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Astro</title>
-	</head>
-	<body>
-		<h1>Astro</h1>
-	</body>
-</html>
+<BaseLayout title="Home">
+  <section class="mb-12">
+    <h1 class="text-3xl font-bold mb-2">遊佐ハル</h1>
+    <p class="text-gray-500">VTuber / 個人開発者</p>
+    <p class="mt-4 text-gray-700 leading-relaxed">
+      ゲーム実況・個人開発・ブラウザゲーム制作など、いろいろやってます。
+      開発した作品は「yusahal studio」名義でリリースしています。
+    </p>
+  </section>
+
+  <section>
+    <h2 class="text-lg font-bold mb-4">最近の記事</h2>
+    {recentPosts.length > 0 ? (
+      <ul class="space-y-3">
+        {recentPosts.map((post) => (
+          <li>
+            <a href={`/blog/${post.id}/`} class="group block">
+              <span class="text-sm text-gray-400">
+                {post.data.pubDate.toLocaleDateString("ja-JP")}
+              </span>
+              <span class="ml-2 group-hover:text-gray-600 transition-colors">
+                {post.data.title}
+              </span>
+            </a>
+          </li>
+        ))}
+      </ul>
+    ) : (
+      <p class="text-gray-400">まだ記事はありません。</p>
+    )}
+    {recentPosts.length > 0 && (
+      <a href="/blog/" class="inline-block mt-4 text-sm text-gray-500 hover:text-gray-700 transition-colors">
+        すべての記事を見る →
+      </a>
+    )}
+  </section>
+</BaseLayout>
